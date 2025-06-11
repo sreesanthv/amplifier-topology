@@ -1,6 +1,6 @@
 # 📡 Amplifier Topology API (Grafana Graph Visualization)
 
-This is a simple mock API server built with Go + Gin to serve cable node topology (Node → RPD → Amplifiers) data in a format compatible with **Grafana's Node Graph Panel**.
+This is a simple mock API server built with Go + Gin to serve node topology (Node → Amplifiers) data in a format compatible with **Grafana's Node Graph Panel**.
 
 ## 🚀 Features
 
