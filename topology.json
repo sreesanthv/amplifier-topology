@@ -1,0 +1,30 @@
+[
+  {
+    "node_name": "Peringave",
+    "amps": [
+      ["amp 1", "amp 2", "amp 3", "amp 4", "amp 5", "amp 6"],
+      ["amp 1", "amp 2", "amp 3", "amp 4", "amp 7", "amp 8"]
+    ]
+  },
+  {
+    "node_name": "Cheruvadi",
+    "amps": [
+      ["amp 10", "amp 11", "amp 12", "amp 13", "amp 14"],
+      ["amp 10", "amp 11", "amp 15", "amp 16"]
+    ]
+  },
+  {
+    "node_name": "Mavoor",
+    "amps": [
+      ["amp 20", "amp 21", "amp 22", "amp 23", "amp 24"],
+      ["amp 21", "amp 25", "amp 26"]
+    ]
+  },
+  {
+    "node_name": "Kunnamangalam",
+    "amps": [
+      ["amp 30", "amp 31", "amp 32", "amp 33"],
+      ["amp 31", "amp 34", "amp 35", "amp 36"]
+    ]
+  }
+]

@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  go-app:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    networks:
+      - net
+
+  grafana:
+    image: grafana/grafana:12.0.1
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_INSTALL_PLUGINS=yesoreyeram-infinity-datasource
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - net
+
+volumes:
+  grafana-storage:
+
+networks:
+  net:
