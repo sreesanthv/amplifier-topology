@@ -13,8 +13,8 @@ This is a simple mock API server built with Go + Gin to serve cable node topolog
 ### 1\. Clone the Repository
 
 ```
-git clone <your-repo-url>
-cd <project-directory>
+git clone https://github.com/sreesanthv/amplifier-topology.git
+cd amplifier-topology
 ```
 
 ### 2\. Build & Run with Docker Compose
@@ -46,50 +46,18 @@ curl http://localhost:8080/node/Peringave/amps
 curl http://localhost:8080/node/Peringave/edges
 ```
 
-## 📊 Grafana Integration
+## 📊 Grafana Integration (using yesoreyeram-infinity-datasource)
 
-1.  Add **Node Graph Panel** in Grafana.
-2.  Use a **Simple JSON** or **JSON API** plugin to connect to this API.
-3.  Set the panel to consume the `/amps` and `/edges` endpoints.
+1.  Install the **Infinity datasource plugin** in Grafana: [yesoreyeram-infinity-datasource](https://grafana.com/grafana/plugins/yesoreyeram-infinity-datasource).
+2.  Go to **Connections → Data sources** and click **Add data source**.
+3.  Select **Infinity**.
+4.  Set type to **JSON** and choose **URL** as the source.
+5.  Set the endpoint to:
+    *   `http://localhost:8080/node/Peringave/amps` → for nodes
+    *   `http://localhost:8080/node/Peringave/edges` → for edges
+6.  Set **Format as**: `Table`
+7.  Use in a **Node Graph Panel** with the following options:
+    *   **Nodes query**: from `/amps` endpoint
+    *   **Edges query**: from `/edges` endpoint
 
-## 🐳 Docker
-
-### Dockerfile
-
-```
-FROM golang:1.21-alpine
-WORKDIR /app
-COPY . .
-RUN go mod download
-RUN go build -o app main.go
-CMD ["./app"]
-```
-
-### docker-compose.yml
-
-```
-version: '3.8'
-
-services:
-  api:
-    build: .
-    ports:
-      - "8080:8080"
-    volumes:
-      - .:/app
-    restart: unless-stopped
-```
-
-## 📝 Sample Topology File (topology.json)
-
-```
-[
-  {
-    "node_name": "Peringave",
-    "amps": [
-      ["amp 1", "amp 2", "amp 3", "amp 4", "amp 5", "amp 6"],
-      ["amp 1", "amp 2", "amp 3", "amp 4", "amp 7", "amp 8"]
-    ]
-  }
-]
-```
+**Tip:** You may apply filters or dynamic variables using `${node}` in the Infinity URL to make it dynamic.

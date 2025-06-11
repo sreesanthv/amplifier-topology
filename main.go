@@ -2,115 +2,147 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-type Topology struct {
+type Node struct {
 	NodeName string     `json:"node_name"`
 	Amps     [][]string `json:"amps"`
 }
 
-var topologyData []Topology
-
-func loadTopology(filename string) error {
-	data, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(data, &topologyData)
-}
-
-// GET /nodes
-func getNodes(c *gin.Context) {
-	var nodes []string
-	for _, entry := range topologyData {
-		nodes = append(nodes, entry.NodeName)
-	}
-	c.JSON(http.StatusOK, gin.H{"nodes": nodes})
-}
-
-// GET /node/:node_name/amps (Grafana format)
 func getNodeAmps(c *gin.Context) {
 	nodeName := c.Param("node_name")
-	nodeMap := make(map[string]bool)
 
-	nodes := []map[string]string{
-		{"id": nodeName, "title": nodeName, "subTitle": "Node"},
+	data, err := os.ReadFile("topology.json")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read topology"})
+		return
 	}
 
-	for _, entry := range topologyData {
-		if entry.NodeName == nodeName {
-			for _, path := range entry.Amps {
+	var nodes []Node
+	if err := json.Unmarshal(data, &nodes); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse topology"})
+		return
+	}
+
+	var result []map[string]interface{}
+	ampSet := make(map[string]bool)
+
+	for _, node := range nodes {
+		if strings.EqualFold(node.NodeName, nodeName) {
+			// Add the node itself
+			result = append(result, map[string]interface{}{
+				"id":       node.NodeName,
+				"title":    node.NodeName,
+				"subtitle": "Node",
+				"color":    "green",
+				"icon":     "server",
+			})
+
+			// Add amps
+			for _, path := range node.Amps {
 				for _, amp := range path {
-					if !nodeMap[amp] {
-						nodeMap[amp] = true
-						subTitle := "Amplifier"
-						if amp == "amp 4" { // optional: treat amp 4 as splitter
-							subTitle = "Splitter"
-						}
-						nodes = append(nodes, map[string]string{
+					if !ampSet[amp] {
+						result = append(result, map[string]interface{}{
 							"id":       amp,
 							"title":    amp,
-							"subTitle": subTitle,
+							"subtitle": "Amp",
+							"color":    "blue",
+							"icon":     "bolt",
 						})
+						ampSet[amp] = true
 					}
 				}
 			}
 			break
 		}
 	}
-	c.JSON(http.StatusOK, gin.H{"nodes": nodes})
+
+	if len(result) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Node not found or no amps"})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
 }
 
-// GET /node/:node_name/edges (Grafana format)
 func getNodeEdges(c *gin.Context) {
 	nodeName := c.Param("node_name")
-	var edges []map[string]string
-	idCounter := 0
 
-	for _, entry := range topologyData {
-		if entry.NodeName == nodeName {
-			for _, path := range entry.Amps {
+	data, err := os.ReadFile("topology.json")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read topology"})
+		return
+	}
+
+	var nodes []Node
+	if err := json.Unmarshal(data, &nodes); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse topology"})
+		return
+	}
+
+	var result []map[string]interface{}
+
+	for _, node := range nodes {
+		if strings.EqualFold(node.NodeName, nodeName) {
+			for _, path := range node.Amps {
 				if len(path) > 0 {
-					// Connect node to first amp
-					edges = append(edges, map[string]string{
-						"id":     fmt.Sprintf("edge_%d", idCounter),
-						"source": nodeName,
+					// Edge from node to first amp
+					result = append(result, map[string]interface{}{
+						"source": node.NodeName,
 						"target": path[0],
 					})
-					idCounter++
 				}
 				for i := 0; i < len(path)-1; i++ {
-					edges = append(edges, map[string]string{
-						"id":     fmt.Sprintf("edge_%d", idCounter),
+					result = append(result, map[string]interface{}{
 						"source": path[i],
 						"target": path[i+1],
 					})
-					idCounter++
 				}
 			}
 			break
 		}
 	}
-	c.JSON(http.StatusOK, gin.H{"edges": edges})
+
+	if len(result) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Node not found or no edges"})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+func getAllNodes(c *gin.Context) {
+	data, err := os.ReadFile("topology.json")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read topology"})
+		return
+	}
+
+	var nodes []Node
+	if err := json.Unmarshal(data, &nodes); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse topology"})
+		return
+	}
+
+	var names []string
+	for _, node := range nodes {
+		names = append(names, node.NodeName)
+	}
+
+	c.JSON(http.StatusOK, names)
 }
 
 func main() {
-	if err := loadTopology("topology.json"); err != nil {
-		log.Fatalf("Failed to load topology: %v", err)
-	}
-
 	router := gin.Default()
 
-	router.GET("/nodes", getNodes)
+	router.GET("/nodes", getAllNodes)
 	router.GET("/node/:node_name/amps", getNodeAmps)
 	router.GET("/node/:node_name/edges", getNodeEdges)
 
-	log.Println("Server running at http://localhost:8080")
 	router.Run(":8080")
 }
