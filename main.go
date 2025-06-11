@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -86,22 +87,35 @@ func getNodeEdges(c *gin.Context) {
 	}
 
 	var result []map[string]interface{}
+	edgeIndex := 0
 
 	for _, node := range nodes {
 		if strings.EqualFold(node.NodeName, nodeName) {
 			for _, path := range node.Amps {
 				if len(path) > 0 {
-					// Edge from node to first amp
+					// Node to first amp
 					result = append(result, map[string]interface{}{
-						"source": node.NodeName,
-						"target": path[0],
+						"id":            fmt.Sprintf("e%d", edgeIndex),
+						"source":        node.NodeName,
+						"target":        path[0],
+						"mainStat":      fmt.Sprintf("%s → %s", node.NodeName, path[0]),
+						"sourceArrow":   "none",
+						"targetArrow":   "arrow",
+						"secondaryStat": "from node",
 					})
+					edgeIndex++
 				}
 				for i := 0; i < len(path)-1; i++ {
 					result = append(result, map[string]interface{}{
-						"source": path[i],
-						"target": path[i+1],
+						"id":            fmt.Sprintf("e%d", edgeIndex),
+						"source":        path[i],
+						"target":        path[i+1],
+						"mainStat":      fmt.Sprintf("%s → %s", path[i], path[i+1]),
+						"sourceArrow":   "none",
+						"targetArrow":   "arrow",
+						"secondaryStat": "amp link",
 					})
+					edgeIndex++
 				}
 			}
 			break
