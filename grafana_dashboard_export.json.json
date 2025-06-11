@@ -24,6 +24,12 @@
       "version": ""
     },
     {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
       "type": "datasource",
       "id": "yesoreyeram-infinity-datasource",
       "name": "Infinity",
@@ -57,11 +63,108 @@
         "type": "yesoreyeram-infinity-datasource",
         "uid": "${DS_YESOREYERAM-INFINITY-DATASOURCE}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "links": [
+            {
+              "title": "Detail",
+              "url": "/d/fff3b93b-2e77-4f18-8087-26abeb381479?var-node=${__value.raw}"
+            }
+          ],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "12.0.1",
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "",
+          "source": "url",
+          "type": "json",
+          "url": "http://go-app:8080/nodes",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          },
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${DS_YESOREYERAM-INFINITY-DATASOURCE}"
+          }
+        }
+      ],
+      "title": "New panel",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "A": "Node Name"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_YESOREYERAM-INFINITY-DATASOURCE}"
+      },
       "gridPos": {
         "h": 14,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 5
       },
       "id": 2,
       "options": {
@@ -161,6 +264,6 @@
   "timezone": "browser",
   "title": "Nodes Topology",
   "uid": "fff3b93b-2e77-4f18-8087-26abeb381479",
-  "version": 9,
+  "version": 13,
   "weekStart": ""
 }
