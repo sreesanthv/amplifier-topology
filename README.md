@@ -46,18 +46,35 @@ curl http://localhost:8080/node/Peringave/amps
 curl http://localhost:8080/node/Peringave/edges
 ```
 
-## 📊 Grafana Integration (using yesoreyeram-infinity-datasource)
+## 📊 Grafana Setup
 
-1.  Install the **Infinity datasource plugin** in Grafana: [yesoreyeram-infinity-datasource](https://grafana.com/grafana/plugins/yesoreyeram-infinity-datasource).
-2.  Go to **Connections → Data sources** and click **Add data source**.
-3.  Select **Infinity**.
-4.  Set type to **JSON** and choose **URL** as the source.
-5.  Set the endpoint to:
-    *   `http://localhost:8080/node/Peringave/amps` → for nodes
-    *   `http://localhost:8080/node/Peringave/edges` → for edges
-6.  Set **Format as**: `Table`
-7.  Use in a **Node Graph Panel** with the following options:
-    *   **Nodes query**: from `/amps` endpoint
-    *   **Edges query**: from `/edges` endpoint
+### 1\. Install Grafana
 
-**Tip:** You may apply filters or dynamic variables using `${node}` in the Infinity URL to make it dynamic.
+You can run Grafana using Docker:
+
+```
+docker run -d -p 3000:3000 grafana/grafana
+```
+
+### 2\. Install `yesoreyeram-infinity-datasource`
+
+*   Go to Grafana → **Configuration → Plugins**
+*   Search for `Infinity` and install it.
+
+### 3\. Add Infinity Data Source
+
+*   Go to **Settings → Data Sources**
+*   Select **Infinity**
+*   Set **URL** `http://localhost:8080`
+*   Save & Test
+
+### 4\. Import Dashboard
+
+*   Open Grafana → Dashboards → **Import**
+*   Upload or paste the content of `grafana_dashboard_export.json`
+*   Set Infinity data source → Import
+
+### 5\. Use the Dashboard
+
+*   Select a node from the dropdown
+*   It loads corresponding amps and links in a Node Graph panel
